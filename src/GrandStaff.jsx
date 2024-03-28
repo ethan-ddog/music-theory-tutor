@@ -140,14 +140,16 @@ class GrandStaff extends React.Component {
 	}
 
 	sortAscendingNotes(arr) {
+		const result = arr.slice();
 		// take array of note names and return array sorted from lowest to highest.
-		return arr.slice().sort((x, y) => {
+		result.sort((x, y) => {
+			console.log('comparing', x, y)
 			let idx1, idx2;
 			for (var i = 0; i < chromatic.length; i++) {
-				if (chromatic[i].includes(x)) {
+				if (chromatic[i].includes(x.name)) {
 					idx1 = i;
 				}
-				if (chromatic[i].includes(y)) {
+				if (chromatic[i].includes(y.name)) {
 					idx2 = i;
 				}
 			}
@@ -163,6 +165,8 @@ class GrandStaff extends React.Component {
 
 			return 0;
 		});
+		console.log('sorted result:', result);
+		return result;
 	}
 
 	// return the new value for the current note after moving one half-step in specified direction
@@ -245,6 +249,7 @@ class GrandStaff extends React.Component {
 						<div id="noteNameDisplayContainer">
 							{this.sortAscendingNotes(this.state.notes).map(
 								({name}, i) => {
+									console.log('name', name)
 									return (
 										<NoteNameDisplay
 											name={name}
@@ -260,9 +265,7 @@ class GrandStaff extends React.Component {
 					)}
 					<div id="intervalDisplayContainer">
 						<IntervalDisplay
-							selectedNotes={this.state.selectedNotes}
-							notes={this.state.notes}
-							sort={this.sortAscendingNotes}
+							selectedNotes={this.sortAscendingNotes(this.state.notes.filter((_, i) => this.state.selectedNotes.includes(i)))}
 						/>
 					</div>
 				</div>

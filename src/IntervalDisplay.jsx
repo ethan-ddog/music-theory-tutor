@@ -19,17 +19,17 @@ class IntervalDisplay extends React.Component {
 		//
 		// call getInterval on each unique pair of notes.
 		// selectedNotes contains indices of each note in this.props.notes.
-		let notes = [];
-		this.props.selectedNotes.forEach(index => {
-			notes.push(this.props.notes[index].name);
-		});
+		let notes = this.props.selectedNotes.map(note => note.name);
+		// this.props.selectedNotes.forEach(index => {
+		// 	notes.push(this.props.notes[index].name);
+		// });
 
 		if (notes.length > 1) {
 			// must have at least two notes selected
 			let tuples = []; // will hold pairs of notes
 
-			// before generating tuples, sort notes in ascending order:
-			notes = this.props.sort(notes);
+			// // before generating tuples, sort notes in ascending order:
+			// notes = this.props.sort(notes);
 
 			for (var i = 0; i < notes.length - 1; i++) {
 				// each tuple contains a note and the next highest note in the chord.
@@ -77,7 +77,6 @@ class IntervalDisplay extends React.Component {
 			// example input: ["Major 3rd", "minor 3rd"] => "major"
 			/////////////////////////////////////////////////////////////////////
 			if (intervals.length === 2) {
-				console.log('its a triad');
 				// lookup potential matches in triads for each possible inversion:
 				let options = ["root position", "first inversion", "second inversion"];
 				for (var i = 0; i < options.length; i++) {
@@ -124,7 +123,7 @@ class IntervalDisplay extends React.Component {
 
 	getInterval(x, y) {
 		// this function uses the arrays from chromatic.js to calculate the interval between two notes.
-		let i, j, interval, octaves, result;
+		let i, j;
 		for (var k = 0; k < chromatic.length; k++) {
 			if (chromatic[k].includes(x)) {
 				i = k;
