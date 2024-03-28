@@ -8,6 +8,35 @@ import bass from './images/Bass.png';
 var Wad = require("web-audio-daw");
 var chromatic = require("./chromatic.js").chromatic;
 
+/**
+ * 					<div className="ledger-line" id="a5" onClick={this.addNote} />
+					<div className="space" id="g5" onClick={this.addNote} />
+					<div className="line" id="f5" onClick={this.addNote} />
+					<div className="space" id="e5" onClick={this.addNote} />
+					<div className="line" id="d5" onClick={this.addNote} />
+					<div className="space" id="c5" onClick={this.addNote} />
+					<div className="line" id="b4" onClick={this.addNote} />
+					<div className="space" id="a4" onClick={this.addNote} />
+					<div className="line" id="g4" onClick={this.addNote} />
+					<div className="space" id="f4" onClick={this.addNote} />
+					<div className="line" id="e4" onClick={this.addNote} />
+					<div className="space" id="d4" onClick={this.addNote} />
+					<div className="ledger-line" id="c4" onClick={this.addNote} />
+					<div className="space" id="b3" onClick={this.addNote} />
+					<div className="line" id="a3" onClick={this.addNote} />
+					<div className="space" id="g3" onClick={this.addNote} />
+					<div className="line" id="f3" onClick={this.addNote} />
+					<div className="space" id="e3" onClick={this.addNote} />
+					<div className="line" id="d3" onClick={this.addNote} />
+					<div className="space" id="c3" onClick={this.addNote} />
+					<div className="line" id="b2" onClick={this.addNote} />
+					<div className="space" id="a2" onClick={this.addNote} />
+					<div className="line" id="g2" onClick={this.addNote} />
+					<div className="space" id="f2" onClick={this.addNote} />
+					<div className="ledger-line" id="e2" onClick={this.addNote} />
+ */
+
+const STAFF_NOTES = ['e2', 'f2', 'g2', 'a2', 'b2', 'c3', 'd3', 'e3', 'f3', 'g3', 'a3', 'b3', 'c4', 'd4', 'e4', 'f4', 'g4', 'a4', 'b4', 'c5', 'd5', 'e5', 'f5', 'g5', 'a5'].reverse();
 
 class GrandStaff extends React.Component {
 	constructor(props) {
@@ -31,7 +60,7 @@ class GrandStaff extends React.Component {
 		// this.changeChord = this.changeChord.bind(this);
 
 		const sine = new Wad({ source: "sine" });
-		const sawtooth = new Wad({ source: "sawtooth" });
+		// const sawtooth = new Wad({ source: "sawtooth" });
 		const triangle = new Wad({ source: 'triangle' });
 		this.c = new Wad.Poly({
 			filter: {
@@ -40,7 +69,7 @@ class GrandStaff extends React.Component {
 				q: 3,
 			}
 		});
-		this.c.add(sine).add(sawtooth).add(triangle);
+		this.c.add(sine).add(triangle);
 		this.isPlaying = false;
 	}
 
@@ -106,7 +135,7 @@ class GrandStaff extends React.Component {
 		let noteToDelete = this.state.notes[index].name;
 		let found = this.state.notesToDisplay.indexOf(noteToDelete);
 		if (found >= 0) {
-			this.state.notesToDisplay.splice(found, 1);
+			this.state.notesToDisplay.sli.splice(found, 1);
 			this.setState(
 				{
 					notesToDisplay: this.state.notesToDisplay
@@ -153,8 +182,7 @@ class GrandStaff extends React.Component {
 		});
 
 		chord.forEach((note) => {
-			console.log('playing note:', note);
-			this.c.play({ volume: 0.005, pitch: note, label: note, env: { hold: -1, release: 0 } });
+			this.c.play({ volume: 0.001, pitch: note, label: note, env: { hold: -1, release: 0.1, attack: 0.1 } });
 		});
 	}
 
@@ -228,7 +256,7 @@ class GrandStaff extends React.Component {
 					<img src={bass} className="bassClef" />
 				</div>
 				<div>
-					{this.state.notes.map((note, i) => {
+					{this.state.notes.filter(note => !note.deleted).map((note, i) => {
 						return (
 							<Note
 								name={note.name}
@@ -240,31 +268,10 @@ class GrandStaff extends React.Component {
 							/>
 						);
 					})}
-					<div className="ledger-line" id="a5" onClick={this.addNote} />
-					<div className="space" id="g5" onClick={this.addNote} />
-					<div className="line" id="f5" onClick={this.addNote} />
-					<div className="space" id="e5" onClick={this.addNote} />
-					<div className="line" id="d5" onClick={this.addNote} />
-					<div className="space" id="c5" onClick={this.addNote} />
-					<div className="line" id="b4" onClick={this.addNote} />
-					<div className="space" id="a4" onClick={this.addNote} />
-					<div className="line" id="g4" onClick={this.addNote} />
-					<div className="space" id="f4" onClick={this.addNote} />
-					<div className="line" id="e4" onClick={this.addNote} />
-					<div className="space" id="d4" onClick={this.addNote} />
-					<div className="ledger-line" id="c4" onClick={this.addNote} />
-					<div className="space" id="b3" onClick={this.addNote} />
-					<div className="line" id="a3" onClick={this.addNote} />
-					<div className="space" id="g3" onClick={this.addNote} />
-					<div className="line" id="f3" onClick={this.addNote} />
-					<div className="space" id="e3" onClick={this.addNote} />
-					<div className="line" id="d3" onClick={this.addNote} />
-					<div className="space" id="c3" onClick={this.addNote} />
-					<div className="line" id="b2" onClick={this.addNote} />
-					<div className="space" id="a2" onClick={this.addNote} />
-					<div className="line" id="g2" onClick={this.addNote} />
-					<div className="space" id="f2" onClick={this.addNote} />
-					<div className="ledger-line" id="e2" onClick={this.addNote} />
+					{STAFF_NOTES.map((note, i) => {
+						const className = i === 0 || i === 12 || i === 24 ? 'ledger-line' : i % 2 === 0 ? 'line' : 'space'
+						return <div className={className} onClick={this.addNote} id={note} />
+					})}
 				</div>
 				<div id="displayContainer">
 					{this.state.notesToDisplay.length === 0 ? (

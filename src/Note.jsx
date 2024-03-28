@@ -122,9 +122,7 @@ class Note extends React.Component {
 		if (this.state.selected) {
 			let n = this.props.name;
 			if (e.which === 8) {
-				this.setState({ deleted: true }, () => {
-					this.props.deleteNote(this.props.index);
-				});
+				this.props.deleteNote(this.props.index);
 			}
 			if (e.which === 38) {
 				var nextNote = this.getNextNote("up");
@@ -180,7 +178,7 @@ class Note extends React.Component {
 	}
 
 	render() {
-		return this.state.deleted ? null : (
+		return (
 			<div className="noteAndAccidentalContainer" id={this.props.index}>
 				<Accidental type={this.getAccidental(this.props.name)} />
 				<div
