@@ -15,9 +15,7 @@ class Note extends React.Component {
 		this.moveNote = this.moveNote.bind(this);
 		this.getAccidental = this.getAccidental.bind(this);
 		this.lookupChromaticIndex = this.lookupChromaticIndex.bind(this);
-		this.keydownHandler = this.keydownHandler.bind(this);
-
-		this.ref = React.createRef();
+		// this.keydownHandler = this.keydownHandler.bind(this);
 	}
 
 	lookupChromaticIndex(noteName) {
@@ -118,33 +116,31 @@ class Note extends React.Component {
 		);
 	}
 
-	keydownHandler(e) {
-		console.log('keydown', e)
-		// only fire events if note is selected.
-		if (this.state.selected) {
-			let n = this.props.name;
-			if (e.which === 8) {
-				console.log('deleting note at index', this.props.index);
-				this.props.deleteNote(this.props.index);
-			}
-			if (e.which === 38) {
-				var nextNote = this.getNextNote("up");
-				if (nextNote !== null) {
-					this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
-				}
-			} else if (e.which === 40) {
-				var nextNote = this.getNextNote("down");
-				if (nextNote !== null) {
-					this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
-				}
-			}
-			if (nextNote !== undefined) {
-				this.setState({
-					note: nextNote
-				});
-			}
-		}
-	}
+	// keydownHandler(e) {
+	// 	// only fire events if note is selected.
+	// 	if (this.state.selected) {
+	// 		let n = this.props.name;
+	// 		if (e.which === 8) {
+	// 			this.props.deleteNote(this.props.index);
+	// 		}
+	// 		if (e.which === 38) {
+	// 			var nextNote = this.getNextNote("up");
+	// 			if (nextNote !== null) {
+	// 				this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
+	// 			}
+	// 		} else if (e.which === 40) {
+	// 			var nextNote = this.getNextNote("down");
+	// 			if (nextNote !== null) {
+	// 				this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
+	// 			}
+	// 		}
+	// 		if (nextNote !== undefined) {
+	// 			this.setState({
+	// 				note: nextNote
+	// 			});
+	// 		}
+	// 	}
+	// }
 
 	componentWillMount() {
 		let i = this.lookupChromaticIndex(this.props.name);
@@ -159,7 +155,7 @@ class Note extends React.Component {
 
 	render() {
 		return (
-			<div className="noteAndAccidentalContainer" id={this.props.index} onKeyDown={this.keydownHandler} tabIndex="0">
+			<div className="noteAndAccidentalContainer" id={this.props.index}>
 				<Accidental type={this.getAccidental(this.props.name)} />
 				<div
 					onClick={this.select}

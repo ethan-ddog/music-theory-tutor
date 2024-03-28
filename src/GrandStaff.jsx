@@ -47,27 +47,26 @@ class GrandStaff extends React.Component {
 		};
 		this.changeNote = this.changeNote.bind(this);
 		this.changeSelection = this.changeSelection.bind(this);
-		this.deleteNote = this.deleteNote.bind(this);
+		this.deleteNotes = this.deleteNotes.bind(this);
 		this.playChord = this.playChord.bind(this);
-		this.getNotesToDisplay = this.getNotesToDisplay.bind(this);
 		this.addNote = this.addNote.bind(this);
 		this.sortAscendingNotes = this.sortAscendingNotes.bind(this);
 		this.saveChord = this.saveChord.bind(this);
 		this.stopChord = this.stopChord.bind(this);
-		this.onPlay = this.onPlay.bind(this);
+		this.onKeyDown = this.onKeyDown.bind(this);
 		this.onRelease = this.onRelease.bind(this);
 		this.isPlaying = false;
 		this.c = null
 	}
 
 	componentDidMount() {
-		document.addEventListener('keydown', this.onPlay);
+		document.addEventListener('keydown', this.onKeyDown);
 		document.addEventListener('keyup', this.onRelease);
 
 	}
 
 	componentWillUnmount() {
-		document.removeEventListener('keydown', this.onPlay);
+		document.removeEventListener('keydown', this.onKeyDown);
 		document.removeEventListener('keyup', this.onRelease);
 	}
 
@@ -75,7 +74,6 @@ class GrandStaff extends React.Component {
 
 	addNote(e) {
 		if (!this.c) {
-			console.log('creating polywad')
 			const Wad = require("web-audio-daw");
 			this.c = new Wad.Poly({
 				filter: {
@@ -95,6 +93,7 @@ class GrandStaff extends React.Component {
 			console.log('returning early')
 			return;
 		}
+		console.log('setting notes:', [...this.state.notes, newNote]);
 		this.setState({
 			notes: [...this.state.notes, newNote],
 			notesToDisplay: [...this.state.notesToDisplay, newNote.name]
@@ -103,18 +102,11 @@ class GrandStaff extends React.Component {
 
 	changeNote(oldNote, newNote, index) {
 		// this function updates the note at parameter index.
-		let n = this.state.notes;
-		n[index].deleted === false
-			? (n[index] = { name: newNote, deleted: false })
-			: console.log("you already deleted this note!");
+		let n = this.state.notes.slice();
+		n[index] = { name: newNote }
 		this.setState(
 			{
 				notes: n
-			},
-			() => {
-				this.setState({
-					notesToDisplay: this.getNotesToDisplay()
-				});
 			}
 		);
 	}
@@ -122,14 +114,14 @@ class GrandStaff extends React.Component {
 	changeSelection(index, bool) {
 		if (bool) {
 			// add note to set of selected notes
-			let s = this.state.selectedNotes;
+			let s = this.state.selectedNotes.slice();
 			s.push(index);
 			this.setState({
 				selectedNotes: s
 			});
 		} else {
 			// remove note from set of selected notes
-			let s = this.state.selectedNotes;
+			let s = this.state.selectedNotes.slice();
 			let x = [];
 			s.forEach(el => {
 				if (el === index) {
@@ -143,33 +135,14 @@ class GrandStaff extends React.Component {
 		}
 	}
 
-	deleteNote(index) {
-		let n = this.state.notes.slice();
-		const noteToDelete = n[index].name;
-		n.splice(index, 1);
-		this.setState({ notes: n });
-
-		// remove note from notesToDisplay and selectedNotes
-		let found = this.state.notesToDisplay.indexOf(noteToDelete);
-		const displayed = this.state.notesToDisplay.slice();
-		displayed.splice(found, 1);
-		const selected = this.state.selectedNotes.slice();
-		const indexOfSelection = selected.indexOf(index);
-		selected.splice(indexOfSelection, 1);
-		this.setState(
-			{
-				notesToDisplay: displayed,
-				selectedNotes: selected
+	deleteNotes(indices) {
+		const newNotes = [];
+		this.state.notes.forEach((note, i) => {
+			if (!indices.includes(i)) {
+				newNotes.push(note);
 			}
-		);
-		
-	}
-
-	getNotesToDisplay() {
-		let result = this.state.notes
-			.filter(note => note.deleted === false)
-			.map(obj => obj.name);
-		return result;
+		});
+		this.setState({ notes: newNotes, selectedNotes: [], notesToDisplay: newNotes.map(({ name }) => name) });
 	}
 
 	stopChord() {
@@ -180,7 +153,6 @@ class GrandStaff extends React.Component {
 	}
 
 	playChord() {
-		console.log('playing chord', this.isPlaying === false)
 		if (this.isPlaying) return;
 		this.isPlaying = true;
 		// use the web audio daw to play all the notes on the staff.
@@ -222,10 +194,53 @@ class GrandStaff extends React.Component {
 		});
 	}
 
-	onPlay(e) {
+	onKeyDown(e) {
 		if (e.keyCode === 32 && !this.state.playing) {
 			this.playChord();
+			return;
 		}
+		if (e.keyCode === 8) {
+			this.deleteNotes(this.state.selectedNotes);
+		}
+		// this.state.selectedNotes.forEach(noteIndex => {
+		// 	console.log('note index:', noteIndex);
+		// 	console.log('corresponding note', this.state.notes[noteIndex]);
+		// 	const noteName = this.state.notes[noteIndex].name;
+		// 	if (e.keyCode === 8) {
+		// 		this.deleteNote(noteIndex);
+		// 		return;
+		// 	}
+		// 	if (this.keyCode === 38) {
+		// 		// TODO move note up
+		// 		// const nextNote = t
+		// 	}
+		// 	if (this.keyCode === 40) {
+		// 		// TODO move note down
+		// 	}
+		// })
+		// only fire events if note is selected.
+		// if (this.state.selected) {
+		// 	let n = this.props.name;
+		// 	// if (e.which === 8) {
+		// 	// 	this.props.deleteNote(this.props.index);
+		// 	// }
+		// 	if (e.which === 38) {
+		// 		var nextNote = this.getNextNote("up");
+		// 		if (nextNote !== null) {
+		// 			this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
+		// 		}
+		// 	} else if (e.which === 40) {
+		// 		var nextNote = this.getNextNote("down");
+		// 		if (nextNote !== null) {
+		// 			this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
+		// 		}
+		// 	}
+		// 	if (nextNote !== undefined) {
+		// 		this.setState({
+		// 			note: nextNote
+		// 		});
+		// 	}
+		// }
 	}
 
 	onRelease(e) {
@@ -248,7 +263,7 @@ class GrandStaff extends React.Component {
 						const className = i === 0 || i === 12 || i === 24 ? 'ledger-line' : i % 2 === 0 ? 'line' : 'space';
 						const indexOfNote = this.state.notes.findIndex(n => n.name.toLowerCase() === note.toLowerCase());
 						return <div className={className} onClick={this.addNote} id={note} key={note + '-staff'}>
-							{indexOfNote > -1 ? <Note index={indexOfNote} name={note} changeSelection={this.changeSelection} changeNote={this.changeNote} deleteNote={this.deleteNote} /> : null}
+							{indexOfNote > -1 ? <Note index={indexOfNote} name={note} changeSelection={this.changeSelection} changeNote={this.changeNote} /> : null}
 						</div>
 					})}
 				</div>
