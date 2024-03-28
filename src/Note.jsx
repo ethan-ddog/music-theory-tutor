@@ -7,7 +7,6 @@ class Note extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			selected: false,
 			chromaticIndex: undefined, // initialize to undefined - on componentWillMount, use name to lookup/set value.
 		};
 		this.select = this.select.bind(this);
@@ -99,21 +98,7 @@ class Note extends React.Component {
 
 	select(e) {
 		e.preventDefault();
-		// toggle selected - if selected, color should be red, else black
-		let s = this.state.selected;
-		this.setState(
-			{
-				selected: !s
-			},
-			() => {
-				// call function from index.jsx to update which note is selected in app state
-				if (this.state.selected) {
-					this.props.changeSelection(this.props.index, true);
-				} else {
-					this.props.changeSelection(this.props.index, false);
-				}
-			}
-		);
+		this.props.changeSelection(this.props.index, !this.props.selected);
 	}
 
 	// keydownHandler(e) {
@@ -159,7 +144,7 @@ class Note extends React.Component {
 				<Accidental type={this.getAccidental(this.props.name)} />
 				<div
 					onClick={this.select}
-					className={!this.state.selected ? "note" : "activeNote"}
+					className={!this.props.selected ? "note" : "activeNote"}
 				/>
 			</div>
 		);

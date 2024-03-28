@@ -7,34 +7,6 @@ import treble from './images/treble.png';
 import bass from './images/Bass.png';
 var chromatic = require("./chromatic.js").chromatic;
 
-/**
- * 					<div className="ledger-line" id="a5" onClick={this.addNote} />
-					<div className="space" id="g5" onClick={this.addNote} />
-					<div className="line" id="f5" onClick={this.addNote} />
-					<div className="space" id="e5" onClick={this.addNote} />
-					<div className="line" id="d5" onClick={this.addNote} />
-					<div className="space" id="c5" onClick={this.addNote} />
-					<div className="line" id="b4" onClick={this.addNote} />
-					<div className="space" id="a4" onClick={this.addNote} />
-					<div className="line" id="g4" onClick={this.addNote} />
-					<div className="space" id="f4" onClick={this.addNote} />
-					<div className="line" id="e4" onClick={this.addNote} />
-					<div className="space" id="d4" onClick={this.addNote} />
-					<div className="ledger-line" id="c4" onClick={this.addNote} />
-					<div className="space" id="b3" onClick={this.addNote} />
-					<div className="line" id="a3" onClick={this.addNote} />
-					<div className="space" id="g3" onClick={this.addNote} />
-					<div className="line" id="f3" onClick={this.addNote} />
-					<div className="space" id="e3" onClick={this.addNote} />
-					<div className="line" id="d3" onClick={this.addNote} />
-					<div className="space" id="c3" onClick={this.addNote} />
-					<div className="line" id="b2" onClick={this.addNote} />
-					<div className="space" id="a2" onClick={this.addNote} />
-					<div className="line" id="g2" onClick={this.addNote} />
-					<div className="space" id="f2" onClick={this.addNote} />
-					<div className="ledger-line" id="e2" onClick={this.addNote} />
- */
-
 const STAFF_NOTES = ['e2', 'f2', 'g2', 'a2', 'b2', 'c3', 'd3', 'e3', 'f3', 'g3', 'a3', 'b3', 'c4', 'd4', 'e4', 'f4', 'g4', 'a4', 'b4', 'c5', 'd5', 'e5', 'f5', 'g5', 'a5'].reverse();
 
 class GrandStaff extends React.Component {
@@ -263,7 +235,7 @@ class GrandStaff extends React.Component {
 						const className = i === 0 || i === 12 || i === 24 ? 'ledger-line' : i % 2 === 0 ? 'line' : 'space';
 						const indexOfNote = this.state.notes.findIndex(n => n.name.toLowerCase() === note.toLowerCase());
 						return <div className={className} onClick={this.addNote} id={note} key={note + '-staff'}>
-							{indexOfNote > -1 ? <Note index={indexOfNote} name={note} changeSelection={this.changeSelection} changeNote={this.changeNote} /> : null}
+							{indexOfNote > -1 ? <Note index={indexOfNote} selected={this.state.selectedNotes.includes(indexOfNote)} name={note} changeSelection={this.changeSelection} changeNote={this.changeNote} /> : null}
 						</div>
 					})}
 				</div>
