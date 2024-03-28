@@ -2,7 +2,6 @@ import React from "react";
 import Note from "./Note.jsx";
 import NoteNameDisplay from "./NoteNameDisplay.jsx";
 import IntervalDisplay from "./IntervalDisplay.jsx";
-import $ from "jquery";
 import treble from './images/treble.png';
 import bass from './images/Bass.png';
 import { chromatic } from "./chromatic.js";
@@ -23,7 +22,6 @@ class GrandStaff extends React.Component {
 		this.playChord = this.playChord.bind(this);
 		this.addNote = this.addNote.bind(this);
 		this.sortAscendingNotes = this.sortAscendingNotes.bind(this);
-		this.saveChord = this.saveChord.bind(this);
 		this.stopChord = this.stopChord.bind(this);
 		this.onKeyDown = this.onKeyDown.bind(this);
 		this.onRelease = this.onRelease.bind(this);
@@ -131,12 +129,6 @@ class GrandStaff extends React.Component {
 		this.state.notes.forEach((note) => {
 			this.c.play({ volume: 0.001, pitch: note.name, label: note.name, env: { hold: -1, release: 0.1, attack: 0.1 } });
 		});
-	}
-
-	saveChord() {
-		let chord = this.state.notesToDisplay;
-		let name = $("#chordName").val();
-		this.props.saveChord({ name: name, notes: chord });
 	}
 
 	sortAscendingNotes(arr) {

@@ -28,9 +28,6 @@ class IntervalDisplay extends React.Component {
 			// must have at least two notes selected
 			let tuples = []; // will hold pairs of notes
 
-			// // before generating tuples, sort notes in ascending order:
-			// notes = this.props.sort(notes);
-
 			for (var i = 0; i < notes.length - 1; i++) {
 				// each tuple contains a note and the next highest note in the chord.
 				tuples.push([notes[i], notes[i + 1]]);

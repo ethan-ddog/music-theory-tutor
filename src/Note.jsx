@@ -23,10 +23,6 @@ class Note extends React.Component {
 		this.props.changeSelection(this.props.index, !this.props.selected);
 	}
 
-	componentWillUnmount() {
-		document.removeEventListener("keydown", this.keydownHandler);
-	}
-
 	render() {
 		return (
 			<div className="noteAndAccidentalContainer" id={this.props.index}>
