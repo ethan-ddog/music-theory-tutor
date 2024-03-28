@@ -5,7 +5,6 @@ import IntervalDisplay from "./IntervalDisplay.jsx";
 import $ from "jquery";
 import treble from './images/treble.png';
 import bass from './images/Bass.png';
-var Wad = require("web-audio-daw");
 var chromatic = require("./chromatic.js").chromatic;
 
 /**
@@ -58,17 +57,7 @@ class GrandStaff extends React.Component {
 		this.onPlay = this.onPlay.bind(this);
 		this.onRelease = this.onRelease.bind(this);
 		this.isPlaying = false;
-		this.c = new Wad.Poly({
-			filter: {
-				type: 'lowpass',
-				frequency: 700,
-				q: 3,
-			}
-		});
-		const sine = new Wad({ source: "sine" });
-		// const sawtooth = new Wad({ source: "sawtooth" });
-		const triangle = new Wad({ source: 'triangle' });
-		this.c.add(sine).add(triangle);
+		this.c = null
 	}
 
 	componentDidMount() {
@@ -85,6 +74,21 @@ class GrandStaff extends React.Component {
 
 
 	addNote(e) {
+		if (!this.c) {
+			console.log('creating polywad')
+			const Wad = require("web-audio-daw");
+			this.c = new Wad.Poly({
+				filter: {
+					type: 'lowpass',
+					frequency: 700,
+					q: 3,
+				}
+			});
+			const sine = new Wad({ source: "sine" });
+			// const sawtooth = new Wad({ source: "sawtooth" });
+			const triangle = new Wad({ source: 'triangle' });
+			this.c.add(sine).add(triangle);
+		}
 		let newNote = { name: e.target.id.toUpperCase() };
 		// prevent duplicate notes
 		if (!e.target.id || this.state.notes.some(note => note.name === newNote.name)) {
@@ -169,27 +173,20 @@ class GrandStaff extends React.Component {
 	}
 
 	stopChord() {
-		this.state.notes.forEach(({ name, deleted }) => {
-			if (!deleted) {
-				this.c.stop(name);
-			}
+		this.state.notes.forEach(({ name }) => {
+			this.c.stop(name);
 		});
 		this.isPlaying = false;
 	}
 
 	playChord() {
+		console.log('playing chord', this.isPlaying === false)
 		if (this.isPlaying) return;
 		this.isPlaying = true;
 		// use the web audio daw to play all the notes on the staff.
-		let chord = [];
-		this.state.notes.forEach(obj => {
-			if (obj.deleted === false) {
-				chord.push(obj.name);
-			}
-		});
-
-		chord.forEach((note) => {
-			this.c.play({ volume: 0.001, pitch: note, label: note, env: { hold: -1, release: 0.1, attack: 0.1 } });
+		this.state.notes.forEach((note) => {
+			console.log('playing note:', note);
+			this.c.play({ volume: 0.001, pitch: note.name, label: note.name, env: { hold: -1, release: 0.1, attack: 0.1 } });
 		});
 	}
 
