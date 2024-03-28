@@ -293,13 +293,13 @@ class GrandStaff extends React.Component {
 							)}
 						</div>
 					)}
-					{/* <div id="intervalDisplayContainer">
+					<div id="intervalDisplayContainer">
 						<IntervalDisplay
 							selectedNotes={this.state.selectedNotes}
 							notes={this.state.notes}
 							sort={this.sortAscendingNotes}
 						/>
-					</div> */}
+					</div>
 				</div>
 			</div>
 		);

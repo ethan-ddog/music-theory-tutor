@@ -14,6 +14,7 @@
 	border-top: 0.5vh solid black;
 	width: 100%;
 	margin-top: 1%;
+	padding: 0.1vh;
 	cursor: pointer;
 }
 
@@ -22,6 +23,7 @@
 	width: 5%;
 	margin-top: 1%;
 	margin-left: 47.5%;
+	padding: 0.1vh;
 	cursor: pointer;
 }
 
@@ -29,6 +31,7 @@
 	border-top: 0.5vh solid white;
 	width: 100%;
 	margin-top: 1%;
+	padding: 0.1vh;
 	cursor: pointer;
 }
 
@@ -39,9 +42,9 @@
 
 #trebleContainer {
 	width: 10%;
-	height: 275px;
+	height: 280px;
 	left: 1%;
-	top: 10vh;
+	top: 11vh;
 	position: fixed;
 	z-index: 2;
 }
@@ -52,9 +55,9 @@
 
 #bassContainer {
 	width: 15%;
-	height: 160px;
+	height: 170px;
 	left: 1%;
-	top: 42vh;
+	top: 45vh;
 	position: fixed;
 	z-index: 2;
 }
@@ -158,6 +161,7 @@
 	float: right;
 	width: 35%;
 	display: inline-block;
+	margin-right: 5%
 }
 
 #noteNameDisplayContainer {
@@ -169,6 +173,7 @@
 	border: 3px solid black;
 	display: inline-block;
 	height: auto;
+	margin-left: 5%;
 }
 
 #playButtonContainer {
