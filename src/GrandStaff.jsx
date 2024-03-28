@@ -5,7 +5,7 @@ import IntervalDisplay from "./IntervalDisplay.jsx";
 import $ from "jquery";
 import treble from './images/treble.png';
 import bass from './images/Bass.png';
-var chromatic = require("./chromatic.js").chromatic;
+import { chromatic } from "./chromatic.js";
 
 const STAFF_NOTES = ['e2', 'f2', 'g2', 'a2', 'b2', 'c3', 'd3', 'e3', 'f3', 'g3', 'a3', 'b3', 'c4', 'd4', 'e4', 'f4', 'g4', 'a4', 'b4', 'c5', 'd5', 'e5', 'f5', 'g5', 'a5'].reverse();
 
@@ -27,6 +27,8 @@ class GrandStaff extends React.Component {
 		this.stopChord = this.stopChord.bind(this);
 		this.onKeyDown = this.onKeyDown.bind(this);
 		this.onRelease = this.onRelease.bind(this);
+		this.getNextNote = this.getNextNote.bind(this);
+		this.moveSelectedNotes = this.moveSelectedNotes.bind(this);
 		this.isPlaying = false;
 		this.c = null
 	}
@@ -62,10 +64,8 @@ class GrandStaff extends React.Component {
 		let newNote = { name: e.target.id.toUpperCase() };
 		// prevent duplicate notes
 		if (!e.target.id || this.state.notes.some(note => note.name === newNote.name)) {
-			console.log('returning early')
 			return;
 		}
-		console.log('setting notes:', [...this.state.notes, newNote]);
 		this.setState({
 			notes: [...this.state.notes, newNote],
 			notesToDisplay: [...this.state.notesToDisplay, newNote.name]
@@ -166,6 +166,58 @@ class GrandStaff extends React.Component {
 		});
 	}
 
+	// return the new value for the current note after moving one half-step in specified direction
+	getNextNote(currentNote, direction) {
+		//////////////////////////////////////////////////////////////////////////////////////////
+		// this function looks for the next note in the direction user clicks (up or down).
+		//
+		// if the next note has a different letter name (i.e. D# -> E ), it will trigger the note
+		// to move to the next div in the given direction.
+		//
+		//////////////////////////////////////////////////////////////////////////////////////////
+		let c = null;
+		chromatic.forEach((tuple, i) => {
+			if (tuple.indexOf(currentNote.name) !== -1) {
+				c = i;
+			}
+		});
+		// let n = this.props.name;
+		if (direction === "up" && chromatic[c + 1]) {
+			return chromatic[c + 1][0]; // 0th index of tuple is the 'ascending' enharmonic spelling of the note.
+			// this.setState({
+			// 	chromaticIndex: c + 1,
+			// 	name: newNote
+			// });
+			// if (n[0] !== newNote[0]) {
+			// 	// note letter changed - note needs to move
+			// 	this.moveNote("up");
+			// }
+			// return newNote;
+		} else if (direction === "down" && chromatic[c - 1]) {
+			return chromatic[c - 1][1]; // index 1 of tuple is the 'descending' enharmonic spelling of the note.
+			// this.setState({
+			// 	chromaticIndex: c - 1,
+			// 	name: newNote
+			// });
+			// if (n[0] !== newNote[0]) {
+			// 	// note letter changed - note needs to move.
+			// 	this.moveNote("down");
+			// }
+			// return newNote;
+		} else {
+			return null;
+		}
+	}
+
+	moveSelectedNotes(direction) {
+		const newNotes = this.state.notes.slice();
+		this.state.selectedNotes.forEach(noteIndex => {
+			const nextNoteName = this.getNextNote(this.state.notes[noteIndex], direction);
+			newNotes[noteIndex].name = nextNoteName;
+		});
+		this.setState({ notes: newNotes });
+	}
+
 	onKeyDown(e) {
 		if (e.keyCode === 32 && !this.state.playing) {
 			this.playChord();
@@ -174,45 +226,12 @@ class GrandStaff extends React.Component {
 		if (e.keyCode === 8) {
 			this.deleteNotes(this.state.selectedNotes);
 		}
-		// this.state.selectedNotes.forEach(noteIndex => {
-		// 	console.log('note index:', noteIndex);
-		// 	console.log('corresponding note', this.state.notes[noteIndex]);
-		// 	const noteName = this.state.notes[noteIndex].name;
-		// 	if (e.keyCode === 8) {
-		// 		this.deleteNote(noteIndex);
-		// 		return;
-		// 	}
-		// 	if (this.keyCode === 38) {
-		// 		// TODO move note up
-		// 		// const nextNote = t
-		// 	}
-		// 	if (this.keyCode === 40) {
-		// 		// TODO move note down
-		// 	}
-		// })
-		// only fire events if note is selected.
-		// if (this.state.selected) {
-		// 	let n = this.props.name;
-		// 	// if (e.which === 8) {
-		// 	// 	this.props.deleteNote(this.props.index);
-		// 	// }
-		// 	if (e.which === 38) {
-		// 		var nextNote = this.getNextNote("up");
-		// 		if (nextNote !== null) {
-		// 			this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
-		// 		}
-		// 	} else if (e.which === 40) {
-		// 		var nextNote = this.getNextNote("down");
-		// 		if (nextNote !== null) {
-		// 			this.props.changeNote(n, nextNote, this.props.index); // callback function from parent component updates parent state
-		// 		}
-		// 	}
-		// 	if (nextNote !== undefined) {
-		// 		this.setState({
-		// 			note: nextNote
-		// 		});
-		// 	}
-		// }
+		if (e.keyCode === 38) {
+			this.moveSelectedNotes('up');
+		}
+		if (e.keyCode === 40) {
+			this.moveSelectedNotes('down');
+		}
 	}
 
 	onRelease(e) {
@@ -233,9 +252,9 @@ class GrandStaff extends React.Component {
 				<div>
 					{STAFF_NOTES.map((note, i) => {
 						const className = i === 0 || i === 12 || i === 24 ? 'ledger-line' : i % 2 === 0 ? 'line' : 'space';
-						const indexOfNote = this.state.notes.findIndex(n => n.name.toLowerCase() === note.toLowerCase());
+						const indexOfNote = this.state.notes.findIndex(n => n.name.length === 2 ? n.name.toLowerCase() === note.toLowerCase() : (n.name[0] + n.name[2]).toLowerCase() === note.toLowerCase());
 						return <div className={className} onClick={this.addNote} id={note} key={note + '-staff'}>
-							{indexOfNote > -1 ? <Note index={indexOfNote} selected={this.state.selectedNotes.includes(indexOfNote)} name={note} changeSelection={this.changeSelection} changeNote={this.changeNote} /> : null}
+							{indexOfNote > -1 ? <Note index={indexOfNote} selected={this.state.selectedNotes.includes(indexOfNote)} name={this.state.notes[indexOfNote].name} changeSelection={this.changeSelection} changeNote={this.changeNote} /> : null}
 						</div>
 					})}
 				</div>
@@ -250,8 +269,8 @@ class GrandStaff extends React.Component {
 						</div>
 					) : (
 						<div id="noteNameDisplayContainer">
-							{this.sortAscendingNotes(this.state.notesToDisplay).map(
-								(name, i) => {
+							{this.sortAscendingNotes(this.state.notes).map(
+								({name}, i) => {
 									return (
 										<NoteNameDisplay
 											name={name}

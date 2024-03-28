@@ -97,7 +97,6 @@ class Note extends React.Component {
 	}
 
 	select(e) {
-		e.preventDefault();
 		this.props.changeSelection(this.props.index, !this.props.selected);
 	}
 
