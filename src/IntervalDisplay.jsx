@@ -51,14 +51,14 @@ class IntervalDisplay extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps() {
-		let chord = this.getChordQuality();
-		if (chord) {
-			this.setState({
-				chord: chord
-			});
-		}
-	}
+	// componentDidUpdate() {
+		// let chord = this.getChordQuality();
+		// if (chord) {
+		// 	this.setState({
+		// 		chord: chord
+		// 	});
+		// }
+	// }
 
 	getChordQuality() {
 		// this function is working for triads and 7th chords in any inversion, but only
@@ -77,6 +77,7 @@ class IntervalDisplay extends React.Component {
 			// example input: ["Major 3rd", "minor 3rd"] => "major"
 			/////////////////////////////////////////////////////////////////////
 			if (intervals.length === 2) {
+				console.log('its a triad');
 				// lookup potential matches in triads for each possible inversion:
 				let options = ["root position", "first inversion", "second inversion"];
 				for (var i = 0; i < options.length; i++) {
@@ -161,7 +162,7 @@ class IntervalDisplay extends React.Component {
 				{this.state.chord ? (
 					<div>
 						<h3>The chord in your selection is: </h3>
-						<p>{this.state.chord}</p>
+						<p>{this.getChordQuality()}</p>
 					</div>
 				) : null}
 			</div>

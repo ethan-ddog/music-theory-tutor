@@ -129,7 +129,6 @@ class GrandStaff extends React.Component {
 		this.isPlaying = true;
 		// use the web audio daw to play all the notes on the staff.
 		this.state.notes.forEach((note) => {
-			console.log('playing note:', note);
 			this.c.play({ volume: 0.001, pitch: note.name, label: note.name, env: { hold: -1, release: 0.1, attack: 0.1 } });
 		});
 	}
@@ -142,7 +141,7 @@ class GrandStaff extends React.Component {
 
 	sortAscendingNotes(arr) {
 		// take array of note names and return array sorted from lowest to highest.
-		return arr.sort((x, y) => {
+		return arr.slice().sort((x, y) => {
 			let idx1, idx2;
 			for (var i = 0; i < chromatic.length; i++) {
 				if (chromatic[i].includes(x)) {
@@ -168,13 +167,6 @@ class GrandStaff extends React.Component {
 
 	// return the new value for the current note after moving one half-step in specified direction
 	getNextNote(currentNote, direction) {
-		//////////////////////////////////////////////////////////////////////////////////////////
-		// this function looks for the next note in the direction user clicks (up or down).
-		//
-		// if the next note has a different letter name (i.e. D# -> E ), it will trigger the note
-		// to move to the next div in the given direction.
-		//
-		//////////////////////////////////////////////////////////////////////////////////////////
 		let c = null;
 		chromatic.forEach((tuple, i) => {
 			if (tuple.indexOf(currentNote.name) !== -1) {
@@ -184,26 +176,8 @@ class GrandStaff extends React.Component {
 		// let n = this.props.name;
 		if (direction === "up" && chromatic[c + 1]) {
 			return chromatic[c + 1][0]; // 0th index of tuple is the 'ascending' enharmonic spelling of the note.
-			// this.setState({
-			// 	chromaticIndex: c + 1,
-			// 	name: newNote
-			// });
-			// if (n[0] !== newNote[0]) {
-			// 	// note letter changed - note needs to move
-			// 	this.moveNote("up");
-			// }
-			// return newNote;
 		} else if (direction === "down" && chromatic[c - 1]) {
 			return chromatic[c - 1][1]; // index 1 of tuple is the 'descending' enharmonic spelling of the note.
-			// this.setState({
-			// 	chromaticIndex: c - 1,
-			// 	name: newNote
-			// });
-			// if (n[0] !== newNote[0]) {
-			// 	// note letter changed - note needs to move.
-			// 	this.moveNote("down");
-			// }
-			// return newNote;
 		} else {
 			return null;
 		}
@@ -219,7 +193,7 @@ class GrandStaff extends React.Component {
 	}
 
 	onKeyDown(e) {
-		if (e.keyCode === 32 && !this.state.playing) {
+		if (e.keyCode === 32 && !this.isPlaying) {
 			this.playChord();
 			return;
 		}
