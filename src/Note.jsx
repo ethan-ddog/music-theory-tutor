@@ -9,7 +9,6 @@ class Note extends React.Component {
 		this.state = {
 			selected: false,
 			chromaticIndex: undefined, // initialize to undefined - on componentWillMount, use name to lookup/set value.
-			deleted: false
 		};
 		this.select = this.select.bind(this);
 		this.getNextNote = this.getNextNote.bind(this);
@@ -17,6 +16,8 @@ class Note extends React.Component {
 		this.getAccidental = this.getAccidental.bind(this);
 		this.lookupChromaticIndex = this.lookupChromaticIndex.bind(this);
 		this.keydownHandler = this.keydownHandler.bind(this);
+
+		this.ref = React.createRef();
 	}
 
 	lookupChromaticIndex(noteName) {
@@ -118,10 +119,12 @@ class Note extends React.Component {
 	}
 
 	keydownHandler(e) {
+		console.log('keydown', e)
 		// only fire events if note is selected.
 		if (this.state.selected) {
 			let n = this.props.name;
 			if (e.which === 8) {
+				console.log('deleting note at index', this.props.index);
 				this.props.deleteNote(this.props.index);
 			}
 			if (e.which === 38) {
@@ -154,32 +157,9 @@ class Note extends React.Component {
 		document.removeEventListener("keydown", this.keydownHandler);
 	}
 
-	componentDidMount() {
-		// I use Didmount here because I need to access dom elements.
-
-		///////////////////////////////////////////////////
-		// append note component to its initial parent div:
-		///////////////////////////////////////////////////
-
-		let n = this.props.name.toLowerCase();
-		if (n.length > 2) {
-			// if note name contains an accidental
-			n = n[0] + n[2]; // remove the accidental, which will always be at index 1 in the string.
-		}
-		let $parent = $("#" + n); // the div in grandStaff.jsx corresponding with name of note.
-		let $child = $("#" + this.props.index); // the div that contains this note and its accidental.
-		$parent.append($child);
-
-		/////////////////////////////////////
-		// listen for note movement/deletion:
-		/////////////////////////////////////
-
-		document.addEventListener("keydown", this.keydownHandler);
-	}
-
 	render() {
 		return (
-			<div className="noteAndAccidentalContainer" id={this.props.index}>
+			<div className="noteAndAccidentalContainer" id={this.props.index} onKeyDown={this.keydownHandler} tabIndex="0">
 				<Accidental type={this.getAccidental(this.props.name)} />
 				<div
 					onClick={this.select}

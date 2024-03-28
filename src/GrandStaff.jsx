@@ -57,11 +57,7 @@ class GrandStaff extends React.Component {
 		this.stopChord = this.stopChord.bind(this);
 		this.onPlay = this.onPlay.bind(this);
 		this.onRelease = this.onRelease.bind(this);
-		// this.changeChord = this.changeChord.bind(this);
-
-		const sine = new Wad({ source: "sine" });
-		// const sawtooth = new Wad({ source: "sawtooth" });
-		const triangle = new Wad({ source: 'triangle' });
+		this.isPlaying = false;
 		this.c = new Wad.Poly({
 			filter: {
 				type: 'lowpass',
@@ -69,17 +65,35 @@ class GrandStaff extends React.Component {
 				q: 3,
 			}
 		});
+		const sine = new Wad({ source: "sine" });
+		// const sawtooth = new Wad({ source: "sawtooth" });
+		const triangle = new Wad({ source: 'triangle' });
 		this.c.add(sine).add(triangle);
-		this.isPlaying = false;
 	}
 
+	componentDidMount() {
+		document.addEventListener('keydown', this.onPlay);
+		document.addEventListener('keyup', this.onRelease);
+
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('keydown', this.onPlay);
+		document.removeEventListener('keyup', this.onRelease);
+	}
+
+
+
 	addNote(e) {
-		let newNote = { name: e.target.id.toUpperCase(), deleted: false };
-		this.state.notes.push(newNote);
-		this.state.notesToDisplay.push(newNote.name);
+		let newNote = { name: e.target.id.toUpperCase() };
+		// prevent duplicate notes
+		if (!e.target.id || this.state.notes.some(note => note.name === newNote.name)) {
+			console.log('returning early')
+			return;
+		}
 		this.setState({
-			notes: this.state.notes,
-			notesToDisplay: this.state.notesToDisplay
+			notes: [...this.state.notes, newNote],
+			notesToDisplay: [...this.state.notesToDisplay, newNote.name]
 		});
 	}
 
@@ -126,32 +140,25 @@ class GrandStaff extends React.Component {
 	}
 
 	deleteNote(index) {
-		// flip deleted flag on note at index
-		let n = this.state.notes;
-		n[index].deleted = true;
+		let n = this.state.notes.slice();
+		const noteToDelete = n[index].name;
+		n.splice(index, 1);
 		this.setState({ notes: n });
 
 		// remove note from notesToDisplay and selectedNotes
-		let noteToDelete = this.state.notes[index].name;
 		let found = this.state.notesToDisplay.indexOf(noteToDelete);
-		if (found >= 0) {
-			this.state.notesToDisplay.sli.splice(found, 1);
-			this.setState(
-				{
-					notesToDisplay: this.state.notesToDisplay
-				},
-				() => {
-					this.state.selectedNotes.splice(
-						this.state.selectedNotes.indexOf(index),
-						1
-					);
-					this.setState({
-						selectedNotes: this.state.selectedNotes,
-						notesToDisplay: this.getNotesToDisplay()
-					});
-				}
-			);
-		}
+		const displayed = this.state.notesToDisplay.slice();
+		displayed.splice(found, 1);
+		const selected = this.state.selectedNotes.slice();
+		const indexOfSelection = selected.indexOf(index);
+		selected.splice(indexOfSelection, 1);
+		this.setState(
+			{
+				notesToDisplay: displayed,
+				selectedNotes: selected
+			}
+		);
+		
 	}
 
 	getNotesToDisplay() {
@@ -230,22 +237,6 @@ class GrandStaff extends React.Component {
 		}
 	}
 
-	componentDidMount() {
-		document.addEventListener('keydown', this.onPlay);
-		document.addEventListener('keyup', this.onRelease)
-	}
-
-	componentWillMount() {
-		this.setState({
-			notesToDisplay: this.state.notes.map(obj => obj.name)
-		});
-	}
-
-	componentWillUnmount() {
-		document.removeEventListener('keydown', this.onPlay);
-		document.removeEventListener('keyup', this.onRelease);
-	}
-
 	render() {
 		return (
 			<div id="staffContainer">
@@ -256,21 +247,12 @@ class GrandStaff extends React.Component {
 					<img src={bass} className="bassClef" />
 				</div>
 				<div>
-					{this.state.notes.filter(note => !note.deleted).map((note, i) => {
-						return (
-							<Note
-								name={note.name}
-								key={i}
-								index={i}
-								changeSelection={this.changeSelection}
-								changeNote={this.changeNote}
-								deleteNote={this.deleteNote}
-							/>
-						);
-					})}
 					{STAFF_NOTES.map((note, i) => {
-						const className = i === 0 || i === 12 || i === 24 ? 'ledger-line' : i % 2 === 0 ? 'line' : 'space'
-						return <div className={className} onClick={this.addNote} id={note} />
+						const className = i === 0 || i === 12 || i === 24 ? 'ledger-line' : i % 2 === 0 ? 'line' : 'space';
+						const indexOfNote = this.state.notes.findIndex(n => n.name.toLowerCase() === note.toLowerCase());
+						return <div className={className} onClick={this.addNote} id={note} key={note + '-staff'}>
+							{indexOfNote > -1 ? <Note index={indexOfNote} name={note} changeSelection={this.changeSelection} changeNote={this.changeNote} deleteNote={this.deleteNote} /> : null}
+						</div>
 					})}
 				</div>
 				<div id="displayContainer">
@@ -299,13 +281,13 @@ class GrandStaff extends React.Component {
 							)}
 						</div>
 					)}
-					<div id="intervalDisplayContainer">
+					{/* <div id="intervalDisplayContainer">
 						<IntervalDisplay
 							selectedNotes={this.state.selectedNotes}
 							notes={this.state.notes}
 							sort={this.sortAscendingNotes}
 						/>
-					</div>
+					</div> */}
 				</div>
 			</div>
 		);
